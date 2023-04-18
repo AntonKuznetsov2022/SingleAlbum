@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">SingleAlbum</string>
+    <string name="play">Play</string>
+    <string name="title_album">Title album</string>
+    <string name="album">Album</string>
+    <string name="name_album">Name album</string>
+    <string name="artist">Artist</string>
+    <string name="genre">Genre</string>
+    <string name="published">Published</string>
+    <string name="error_loading">Error loading</string>
+    <string name="retry_loading">Retry</string>
+</resources>
