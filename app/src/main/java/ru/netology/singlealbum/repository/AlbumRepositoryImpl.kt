@@ -3,41 +3,45 @@ package ru.netology.singlealbum.repository
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaType
 import ru.netology.singlealbum.dto.Album
+import ru.netology.singlealbum.dto.Song
+import java.io.IOException
 import java.util.concurrent.TimeUnit
 
-class AlbumRepositoryImpl {
+
+class AlbumRepositoryImpl : AlbumRepository {
+
     private val client = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
         .build()
     private val gson = Gson()
     private val typeToken = object : TypeToken<Album>() {}
-    private val url = "https://github.com/netology-code/andad-homeworks/raw/master/09_multimedia/data/album.json"
+    private lateinit var song: Song
 
     companion object {
-        private val jsonType = "application/json".toMediaType()
+        private const val BASE_URL =
+            "https://github.com/netology-code/andad-homeworks/raw/master/09_multimedia/data/album.json"
     }
 
-    fun getAll(): Album {
+    override fun get(callback: AlbumRepository.Callback) {
         val request: Request = Request.Builder()
-            .url(url)
+            .url(BASE_URL)
             .build()
 
-        return client.newCall(request)
-            .execute()
-            .let { it.body?.string() ?: throw RuntimeException("body is null") }
-            .let {
-                gson.fromJson(it, typeToken.type)
-            } ?: Album(
-            id = 0,
-            title = "",
-            subtitle = "",
-            artist = "",
-            published = "",
-            genre = "",
-            tracks = emptyList()
-        )
-    }
+        client.newCall(request)
+            .enqueue(object : Callback {
+                override fun onResponse(call: Call, response: Response) {
+                    val body = response.body?.string() ?: throw RuntimeException("body is null")
+                    try {
+                        callback.onSuccess(gson.fromJson(body, typeToken.type))
+                    } catch (e: Exception) {
+                        callback.onError(e)
+                    }
+                }
 
+                override fun onFailure(call: Call, e: IOException) {
+                    callback.onError(e)
+                }
+            })
+    }
 }

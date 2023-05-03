@@ -9,14 +9,6 @@ class MediaLifecycleObserve: LifecycleEventObserver {
 
     var mediaPlayer: MediaPlayer? = MediaPlayer()
 
-    fun play() {
-        mediaPlayer?.setOnPreparedListener{
-            it.start()
-        }
-
-        mediaPlayer?.prepareAsync()
-    }
-
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when(event) {
             Lifecycle.Event.ON_PAUSE -> mediaPlayer?.pause()

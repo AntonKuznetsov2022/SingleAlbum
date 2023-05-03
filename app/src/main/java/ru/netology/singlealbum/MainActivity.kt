@@ -7,7 +7,7 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.singlealbum.databinding.ActivityMainBinding
-import ru.netology.singlealbum.dto.Tracks
+import ru.netology.singlealbum.dto.Song
 import ru.netology.singlealbum.viewmodel.AlbumViewModel
 
 class MainActivity : AppCompatActivity() {
@@ -24,34 +24,43 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         lifecycle.addObserver(observe)
 
-        val adapter = TracksAdapter(object : OnInteractionListener {
-            var lastSong: Tracks = Tracks(-1,"","")
+        val adapter = TracksAdapter(observe, object : OnInteractionListener {
+            var lastSong: Song = Song(-1, "", "", false)
 
-            override fun play(tracks: Tracks) {
+            override fun play(song: Song) {
 
-                if (!tracks.playTracks) {
-                    observe.mediaPlayer?.stop()
-                    observe.mediaPlayer?.reset()
-                    tracks.playTracks = false
-                    observe.apply {
-                        mediaPlayer?.setDataSource(url + tracks.file)
-                        tracks.playTracks = true
-                    }.play()
-
-                    observe.mediaPlayer?.setOnCompletionListener {
-                        val adapter = binding.musicList.adapter as TracksAdapter
-                        val nextId = adapter.getId(tracks.id)
-                        val nextSong = adapter.nextTrack(nextId)
-                        play(nextSong)
+                if (lastSong.file != song.file) {
+                    if (observe.mediaPlayer?.isPlaying == true) {
+                        observe.mediaPlayer?.reset()
+                        lastSong.playTracks = false
+                        binding.musicList.adapter?.notifyItemChanged(lastSong.id - 1)
                     }
-                    
+                    observe.mediaPlayer?.apply {
+                        setDataSource(url + song.file)
+
+                        setOnPreparedListener {
+                            it.start()
+                            song.playTracks = true
+                            lastSong = song
+                            binding.musicList.adapter?.notifyItemChanged(song.id - 1)
+                        }
+
+                        setOnCompletionListener {
+                            val adapter = binding.musicList.adapter as TracksAdapter
+                            val nextId = adapter.nextId(song.id)
+                            val nextSong = adapter.nextSong(nextId)
+                            play(nextSong)
+                        }
+                        prepareAsync()
+                    }
                 } else {
                     if (observe.mediaPlayer?.isPlaying == true) {
                         observe.mediaPlayer?.pause()
                     } else {
                         observe.mediaPlayer?.start()
-                        tracks.playTracks = true
                     }
+                    song.playTracks = !song.playTracks
+                    binding.musicList.adapter?.notifyItemChanged(song.id - 1)
                 }
             }
         })
@@ -74,6 +83,5 @@ class MainActivity : AppCompatActivity() {
                     .show()
             }
         }
-
     }
 }

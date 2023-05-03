@@ -4,9 +4,11 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import ru.netology.singlealbum.dto.Album
+import ru.netology.singlealbum.dto.Song
 import ru.netology.singlealbum.model.FeedModel
+import ru.netology.singlealbum.repository.AlbumRepository
 import ru.netology.singlealbum.repository.AlbumRepositoryImpl
-import kotlin.concurrent.thread
 
 class AlbumViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -20,16 +22,17 @@ class AlbumViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun loadAlbum() {
-        thread {
-            _data.postValue(FeedModel(loading = true))
-            try {
-                val album = repository.getAll().let { album ->
-                    album.copy(tracks = album.tracks.map { it.copy(album = album.title) })
-                }
-                FeedModel(album = album)
-            } catch (e: Exception) {
-                FeedModel(error = true)
-            }.also(_data::postValue)
-        }
+        _data.value = FeedModel(loading = true)
+        repository.get(object : AlbumRepository.Callback {
+            override fun onSuccess(album: Album) {
+                _data.postValue(FeedModel(album = album.copy(tracks = album.tracks?.map {
+                    it.copy(album = album.title)
+                })))
+            }
+
+            override fun onError(e: Exception) {
+                _data.postValue(FeedModel(error = true))
+            }
+        })
     }
 }

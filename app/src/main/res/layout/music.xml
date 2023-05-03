@@ -7,7 +7,7 @@
     android:layout_margin="@dimen/indent">
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/play"
+        android:id="@+id/playButton"
         style="@style/Widget.AppTheme.MusicButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -16,7 +16,7 @@
         android:contentDescription="@string/play"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/music_selector" />
+        app:icon="@drawable/baseline_play_circle_filled_24" />
 
     <TextView
         android:id="@+id/song_name"
@@ -24,8 +24,8 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/indent"
         android:textColor="@color/black"
-        app:layout_constraintBottom_toBottomOf="@id/play"
-        app:layout_constraintStart_toEndOf="@id/play"
+        app:layout_constraintBottom_toBottomOf="@id/playButton"
+        app:layout_constraintStart_toEndOf="@id/playButton"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Song name Songe" />
 
@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/indent"
         android:textColor="@color/grey"
-        app:layout_constraintBottom_toBottomOf="@id/play"
+        app:layout_constraintBottom_toBottomOf="@id/playButton"
         app:layout_constraintStart_toEndOf="@id/song_name"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Album name Album name" />
